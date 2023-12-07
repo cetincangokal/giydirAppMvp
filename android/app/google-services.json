@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "175636124949",
+    "project_id": "giydir-mvp2",
+    "storage_bucket": "giydir-mvp2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:175636124949:android:0ebaf1d53b9ca1259dc51c",
+        "android_client_info": {
+          "package_name": "com.example.giydir_mvp2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbSQbaVQMsIRXKLgtnr9q0mJeZqw1-FDU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
