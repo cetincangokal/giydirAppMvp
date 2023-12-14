@@ -10,6 +10,7 @@ class User {
   final String photoUrl;
 
   const User(
+    //değişiklik
       {required this.username,
       required this.uid,
       required this.email,
