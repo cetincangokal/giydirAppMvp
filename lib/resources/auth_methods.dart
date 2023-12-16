@@ -1,8 +1,10 @@
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:giydir_mvp2/models/user.dart' as model;
 import 'package:giydir_mvp2/resources/storage_methods.dart';
+import 'package:giydir_mvp2/utils/utils.dart';
 
 
 class AuthMethods {
@@ -19,7 +21,7 @@ class AuthMethods {
     return model.User.fromSnap(documentSnapshot);
   }
 
-  // Signing Up User
+  // Signing Up 
 
   Future<String> signUpUser({
     required String email,
@@ -27,6 +29,7 @@ class AuthMethods {
     required String username,
     required String nameAndSurname,
     required Uint8List file,
+    required BuildContext context,
   }) async {
     String res = "Some error Occurred";
     try {
@@ -40,6 +43,7 @@ class AuthMethods {
           email: email,
           password: password,
         );
+        await sendEmailVerification(context);
 
         String photoUrl =
             await StorageMethods().uploadImageToStorage('profilePics', file, false);
@@ -95,5 +99,12 @@ class AuthMethods {
 
   Future<void> signOut() async {
     await _auth.signOut();
+  }
+  
+  Future<void> sendEmailVerification(BuildContext context) async {
+    try {
+      _auth.currentUser!.sendEmailVerification();
+      showSnackBar(context, 'Email verification send!');
+    }catch (e){}
   }
 }

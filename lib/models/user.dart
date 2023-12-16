@@ -9,27 +9,40 @@ class User {
   final List following;
   final String photoUrl;
 
-  const User(
-    //değişiklik
-      {required this.username,
-      required this.uid,
-      required this.email,
-      required this.photoUrl,
-      required this.nameAndSurname,
-      required this.followers,
-      required this.following});
+  const User({
+    required this.username,
+    required this.uid,
+    required this.email,
+    required this.photoUrl,
+    required this.nameAndSurname,
+    required this.followers,
+    required this.following,
+  });
 
-  static User fromSnap(DocumentSnapshot snap) {
-    var snapshot = snap.data() as Map<String, dynamic>;
+  
+  factory User.fromSnap(DocumentSnapshot snap) {
+    final Map<String, dynamic>? snapshotData = snap.data() as Map<String, dynamic>?;
+
+    if (snapshotData == null) {
+      return const User(
+        username: "",
+        uid: "",
+        email: "",
+        nameAndSurname: "",
+        photoUrl: "",
+        followers: [],
+        following: [],
+      );
+    }
 
     return User(
-      username: snapshot["username"],
-      uid: snapshot["uid"],
-      email: snapshot["email"],
-      nameAndSurname: snapshot["nameAndSurname"],
-      photoUrl: snapshot["photoUrl"],
-      followers: snapshot["followers"],
-      following: snapshot["following"],
+      username: snapshotData["username"] ?? "",
+      uid: snapshotData["uid"] ?? "",
+      email: snapshotData["email"] ?? "",
+      nameAndSurname: snapshotData["nameAndSurname"] ?? "",
+      photoUrl: snapshotData["photoUrl"] ?? "",
+      followers: snapshotData["followers"] ?? [],
+      following: snapshotData["following"] ?? [],
     );
   }
 

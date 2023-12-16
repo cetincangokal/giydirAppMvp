@@ -50,8 +50,8 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
       bottomNavigationBar: BottomNavigationBar(
         
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color.fromARGB(255, 205, 204, 204),
-        unselectedItemColor: Colors.white,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: const Color.fromARGB(255, 205, 204, 204),
         
         backgroundColor: const Color(
               0x00ffffff), // transparent, you could use 0x44aaaaff to make it slightly less transparent with a blue hue.
@@ -64,9 +64,9 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.search,
+              Icons.notifications,
             ),
-            label: 'Search',
+            label: 'Notification',
           ),
           BottomNavigationBarItem(
             icon: Icon(

@@ -49,9 +49,10 @@ class _SearchScreenState extends State<SearchScreen> {
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
-                }
-                return ListView.builder(
-                  itemCount: (snapshot.data! as dynamic).docs.length,
+                }else{
+
+                  return ListView.builder(
+                  itemCount: (snapshot.data! as dynamic).docs.length - 1,
                   itemBuilder: (context, index) {
                     return InkWell(
                       onTap: () => Navigator.of(context).push(
@@ -65,7 +66,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         
                         leading: CircleAvatar(
                           backgroundImage: NetworkImage(
-                            (snapshot.data! as dynamic).docs[index]['photoUrl'],
+                            (snapshot.data! as dynamic).docs[index]?['photoUrl'] ?? "https://firebasestorage.googleapis.com/v0/b/giydir-mvp2.appspot.com/o/profilePics%2FmhlQWvcgVWYVifvRbPjMdK5pf132?alt=media&token=fba86ef1-0804-43af-b5cc-ca9aac9b7fca"
+,
                           ),
                           radius: 25,
                         ),
@@ -76,6 +78,9 @@ class _SearchScreenState extends State<SearchScreen> {
                     );
                   },
                 );
+                }
+              
+                
               },
             )
           : FutureBuilder(
@@ -85,6 +90,10 @@ class _SearchScreenState extends State<SearchScreen> {
                   .get(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (snapshot.connectionState == ConnectionState.waiting){
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
