@@ -5,7 +5,7 @@ import 'package:giydir_mvp2/screens/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
-
+//deneme
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
