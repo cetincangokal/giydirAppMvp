@@ -18,9 +18,10 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   var userData = {};
-  int postLen = 0;
+  // int postLen = 0;
   int followers = 0;
   int following = 0;
+  int  postCount = 0;
   bool isFollowing = false;
   bool isLoading = false;
 
@@ -46,10 +47,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
           .get();
 
-      postLen = postSnap.docs.length;
+      // postLen = postSnap.docs.length;
       userData = userSnap.data()!;
       followers = userSnap.data()!['followers'].length;
       following = userSnap.data()!['following'].length;
+      postCount = userSnap.data()!['postCount'];
       isFollowing = userSnap
           .data()!['followers']
           .contains(FirebaseAuth.instance.currentUser!.uid);
@@ -86,7 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           top: 15,
                         ),
                         child: Text(
-                          userData['username'],
+                          userData['username'] ?? '',
                           style: const TextStyle(
                               fontWeight: FontWeight.bold,fontSize: 20, color: Colors.black),
                         ),
@@ -109,7 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             CircleAvatar(
                               backgroundColor: Colors.grey,
                               backgroundImage: NetworkImage(
-                                userData['photoUrl'],
+                                userData['photoUrl'] ?? '',
                               ),
                               radius: 70,
                             ),
@@ -124,7 +126,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           top: 15,
                         ),
                         child: Text(
-                          userData['nameAndSurname'],
+                          userData['nameAndSurname'] ?? '',
                           style: const TextStyle(
                               fontWeight: FontWeight.bold,fontSize: 20, color: Colors.black),
                         ),
@@ -137,7 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
                             Row(
                               children: [
-                                buildStatColumn(postLen, "Posts"),
+                                buildStatColumn(postCount, "Posts"),
                                 Container(
                                   color: Colors.black54,
                                   width: 0,

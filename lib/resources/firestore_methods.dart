@@ -16,6 +16,23 @@ class FireStoreMethods {
       String photoUrl =
           await StorageMethods().uploadImageToStorage('posts', file, true);
       String postId = const Uuid().v1(); // creates unique id based on time
+
+      //mehmetin bok yemesi
+      _firestore
+          .collection('users')
+          .doc(uid)
+          .get()
+          .then((DocumentSnapshot<Map<String, dynamic>> value) {
+        if (value.data()!['postCount'] == null) {
+          _firestore.collection('users').doc(uid).set({'postCount': 1},SetOptions(merge: true));
+        } else {
+          _firestore
+              .collection('users')
+              .doc(uid)
+              .update({'postCount': FieldValue.increment(1)});
+        }
+      });
+
       Post post = Post(
         description: description,
         uid: uid,

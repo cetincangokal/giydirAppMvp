@@ -49,7 +49,8 @@ class _SignupScreenState extends State<SignupScreen> {
         password: _passwordController.text,
         username: _nickNameController.text,
         nameAndSurname: _nameAndSurnameController.text,
-        file: _image!);
+        file: _image!,
+        context: context);
     // if string returned is sucess, user has been created
     if (res == "success") {
       setState(() {

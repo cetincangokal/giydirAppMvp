@@ -113,9 +113,8 @@ class _PostPlayerState extends State<PostPlayer> {
                 )),
                 Container(
                   width: 100,
-                  margin: const EdgeInsets.only(top: 380),
+                  margin: const EdgeInsets.only(top: 280),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
                       FloatingActionButton(
                         onPressed: () {},
@@ -127,54 +126,87 @@ class _PostPlayerState extends State<PostPlayer> {
                           ),
                         ),
                       ),
-                      Column(
-                        children: [
-                          IconButton(
-                            icon: widget.snap['likes'].contains(user.uid)
-                                ? const Icon(
-                                    Icons.star,
-                                    color: Colors.red,
-                                    size: 35,
-                                  )
-                                : const Icon(
-                                    Icons.star_border,
-                                    size: 35,
+                      Column(children: [
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Column(
+                          children: [
+                            IconButton(
+                              icon: widget.snap['likes'].contains(user.uid)
+                                  ? const Icon(
+                                      Icons.star,
+                                      color: Colors.red,
+                                      size: 35,
+                                    )
+                                  : const Icon(
+                                      Icons.star_border,
+                                      size: 35,
+                                    ),
+                              onPressed: () => FireStoreMethods().likePost(
+                                widget.snap['postId'].toString(),
+                                user.uid,
+                                widget.snap['likes'],
+                              ),
+                            ),
+                            DefaultTextStyle(
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall!
+                                    .copyWith(fontWeight: FontWeight.w800),
+                                child: Text(
+                                  '${widget.snap['likes'].length} stars',
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                )),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Column(
+                          children: [
+                            IconButton(
+                              icon: const Icon(
+                                Icons.comment_outlined,
+                                size: 35,
+                              ),
+                              onPressed: () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => CommentsScreen(
+                                    postId: widget.snap['postId'].toString(),
                                   ),
-                            onPressed: () => FireStoreMethods().likePost(
-                              widget.snap['postId'].toString(),
-                              user.uid,
-                              widget.snap['likes'],
-                            ),
-                          ),
-                          DefaultTextStyle(
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelSmall!
-                                  .copyWith(fontWeight: FontWeight.w800),
-                              child: Text(
-                                '${widget.snap['likes'].length} stars',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              )),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.comment_outlined,
-                              size: 35,
-                            ),
-                            onPressed: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => CommentsScreen(
-                                  postId: widget.snap['postId'].toString(),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 15),
-                        ],
-                      ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Column(
+                          children: [
+                            IconButton(
+                                icon: const Icon(
+                                  Icons.share,
+                                  size: 35,
+                                ),
+                                onPressed: () {}),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Column(
+                          children: [
+                            IconButton(
+                                icon: const Icon(
+                                  Icons.link_sharp,
+                                  size: 35,
+                                ),
+                                onPressed: () {}),
+                          ],
+                        ),
+                      ])
                     ],
                   ),
                 ),
