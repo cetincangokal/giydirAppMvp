@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:giydir_mvp2/screens/addPost/addPost_screen.dart';
+import 'package:giydir_mvp2/screens/addPost/add_clothes_screen.dart';
 import 'package:giydir_mvp2/utils/colors.dart';
 import 'package:giydir_mvp2/widgets/text_input.dart';
 
@@ -11,6 +13,7 @@ class TopScreen extends StatefulWidget {
 
 class _TopScreenState extends State<TopScreen> {
   final TextEditingController _topLinkController = TextEditingController();
+  final TextEditingController _topSizeController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -18,25 +21,33 @@ class _TopScreenState extends State<TopScreen> {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: mobileBackgroundColor,
-        leading:  IconButton(
+        leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios,
             color: Colors.black,
           ),
-          onPressed: () => Navigator.of(context).pop(
-                      MaterialPageRoute(
-                          builder: (context) => const TopScreen()),
-                    ),
+          onPressed: () {
+            // Veriyi hazırla
+
+            print("Top Data Before Pop Top: $_topLinkController");
+            Navigator.pop(
+              context,
+              _topLinkController.text,
+            );
+            print("Top Data After Pop Top: $_topLinkController");
+          },
         ),
         title: const Text(
           'Top',
           style: TextStyle(color: Colors.black),
         ),
         centerTitle: false,
-        actions: const <Widget>[
+        actions: <Widget>[
           TextButton(
-            onPressed: null,
-            child: Text(
+            onPressed: () {
+              // AddPostScreen'e yönlendirme ve veri iletimi
+            },
+            child: const Text(
               "Add new +",
               style: TextStyle(
                   color: Colors.grey,
@@ -52,15 +63,17 @@ class _TopScreenState extends State<TopScreen> {
           Padding(
             padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
             child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextFieldInput(
                     textEditingController: _topLinkController,
                     labelText: 'Link',
                     textInputType: TextInputType.text),
-                    const SizedBox(height: 20,),
+                const SizedBox(
+                  height: 20,
+                ),
                 TextFieldInput(
-                    textEditingController: _topLinkController,
+                    textEditingController: _topSizeController,
                     labelText: 'Size',
                     textInputType: TextInputType.number),
               ],

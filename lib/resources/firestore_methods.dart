@@ -9,7 +9,8 @@ class FireStoreMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<String> uploadPost(String description, Uint8List file, String uid,
-      String username, String profImage) async {
+      String username, String profImage,
+      {Map<String, dynamic>? links}) async {
     // asking uid here because we dont want to make extra calls to firebase auth when we can just get from our state management
     String res = "Some error occurred";
     try {
@@ -24,7 +25,10 @@ class FireStoreMethods {
           .get()
           .then((DocumentSnapshot<Map<String, dynamic>> value) {
         if (value.data()!['postCount'] == null) {
-          _firestore.collection('users').doc(uid).set({'postCount': 1},SetOptions(merge: true));
+          _firestore
+              .collection('users')
+              .doc(uid)
+              .set({'postCount': 1}, SetOptions(merge: true));
         } else {
           _firestore
               .collection('users')
@@ -34,15 +38,18 @@ class FireStoreMethods {
       });
 
       Post post = Post(
-        description: description,
-        uid: uid,
-        username: username,
-        likes: [],
-        postId: postId,
-        datePublished: DateTime.now(),
-        postUrl: photoUrl,
-        profImage: profImage,
-      );
+          description: description,
+          uid: uid,
+          username: username,
+          likes: [],
+          postId: postId,
+          datePublished: DateTime.now(),
+          postUrl: photoUrl,
+          profImage: profImage,
+          links: links
+          // Kategori ve link bilgilerini ekleyin
+          );
+
       _firestore.collection('posts').doc(postId).set(post.toJson());
       res = "success";
     } catch (err) {
@@ -50,6 +57,20 @@ class FireStoreMethods {
     }
     return res;
   }
+
+  // Future<void> addTopDetails(String link, String size, String uid) async {
+  //   try {
+  //     // Firestore'a ekleme işlemi
+  //     await _firestore.collection('users').doc(uid).collection('top_details').add({
+  //       'link': link,
+  //       'size': size,
+  //       'timestamp': FieldValue.serverTimestamp(),
+  //     });
+  //   } catch (e) {
+  //     // Hata durumunda işlemler
+  //     print('Hata: $e');
+  //   }
+  // }
 
   Future<String> likePost(String postId, String uid, List likes) async {
     String res = "Some error occurred";

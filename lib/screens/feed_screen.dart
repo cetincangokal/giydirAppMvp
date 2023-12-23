@@ -38,7 +38,7 @@ class _FeedScreenState extends State<FeedScreen> {
           ],
         ),
         elevation: 0,
-        backgroundColor: const Color(0x00ffffff),
+        backgroundColor: Colors.transparent,
       ),
       body: StreamBuilder(
           stream: FirebaseFirestore.instance.collection('posts').snapshots(),

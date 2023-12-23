@@ -49,13 +49,16 @@ class _CommentsScreenState extends State<CommentsScreen> {
     final User user = Provider.of<UserProvider>(context).getUser;
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: mobileBackgroundColor,
-        title: const Text(
-          'Comments',
-        ),
-        centerTitle: false,
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: Colors.amber,
+      //   shape: const RoundedRectangleBorder(
+      //       borderRadius: BorderRadius.vertical(top: Radius.circular(20))
+      //     ),
+      //   title: const Text(
+      //     'Comments',
+      //   ),
+      //   centerTitle: false,
+      // ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('posts')
@@ -69,7 +72,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
               child: CircularProgressIndicator(),
             );
           }
-
+      
           return ListView.builder(
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (ctx, index) => CommentCard(
@@ -99,6 +102,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
                     controller: commentEditingController,
                     decoration: InputDecoration(
                       hintText: 'Comment as ${user.username}',
+                      hintStyle: const TextStyle(color: Colors.black),
                       border: InputBorder.none,
                     ),
                   ),

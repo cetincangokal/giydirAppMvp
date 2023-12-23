@@ -6,26 +6,31 @@ class TextFieldInput extends StatelessWidget {
   final String labelText;
   final IconData? icon;
   final TextInputType textInputType;
+  final Function(String)? onChanged; // Callback for onChanged
+
   const TextFieldInput({
     Key? key,
     required this.textEditingController,
     this.isPass = false,
     required this.labelText,
     required this.textInputType,
-     this.icon,
+    this.icon,
+    this.onChanged, // Optional onChanged callback
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final inputBorder = UnderlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
-        borderSide: const BorderSide(
-          color: Colors.grey,
-        ));
+      borderRadius: BorderRadius.circular(20),
+      borderSide: const BorderSide(
+        color: Colors.grey,
+      ),
+    );
 
     return TextField(
       controller: textEditingController,
       style: const TextStyle(color: Colors.black),
+      onChanged: onChanged, // Pass onChanged callback to TextField
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: const TextStyle(fontSize: 20, color: Colors.black),
@@ -36,7 +41,6 @@ class TextFieldInput extends StatelessWidget {
         border: inputBorder,
         focusedBorder: inputBorder,
         enabledBorder: inputBorder,
-        filled: true,
       ),
       keyboardType: textInputType,
       obscureText: isPass,

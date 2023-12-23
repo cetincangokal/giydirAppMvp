@@ -6,6 +6,7 @@ import 'package:giydir_mvp2/resources/firestore_methods.dart';
 import 'package:giydir_mvp2/screens/comments_screen.dart';
 import 'package:giydir_mvp2/screens/profile_screen.dart';
 import 'package:giydir_mvp2/utils/utils.dart';
+import 'package:giydir_mvp2/widgets/link_modal.dart';
 import 'package:provider/provider.dart';
 
 class PostPlayer extends StatefulWidget {
@@ -25,21 +26,40 @@ class _PostPlayerState extends State<PostPlayer> {
     fetchCommentLen();
   }
 
+  // fetchCommentLen() async {
+  //   try {
+  //     QuerySnapshot snap = await FirebaseFirestore.instance
+  //         .collection('posts')
+  //         .doc(widget.snap['postId'])
+  //         .collection('comments')
+  //         .get();
+  //     commentLen = snap.docs.length;
+  //   } catch (err) {
+  //     showSnackBar(
+  //       context,
+  //       err.toString(),
+  //     );
+  //   }
+  //   setState(() {});
+  // }
   fetchCommentLen() async {
-    try {
-      QuerySnapshot snap = await FirebaseFirestore.instance
-          .collection('posts')
-          .doc(widget.snap['postId'])
-          .collection('comments')
-          .get();
-      commentLen = snap.docs.length;
-    } catch (err) {
-      showSnackBar(
-        context,
-        err.toString(),
-      );
+    if (mounted) {
+      try {
+        QuerySnapshot snap = await FirebaseFirestore.instance
+            .collection('posts')
+            .doc(widget.snap['postId'])
+            .collection('comments')
+            .get();
+        commentLen = snap.docs.length;
+      } catch (err) {
+        if (mounted) {
+          showSnackBar(context, err.toString());
+        }
+      }
+      if (mounted) {
+        setState(() {});
+      }
     }
-    setState(() {});
   }
 
   @override
@@ -119,7 +139,11 @@ class _PostPlayerState extends State<PostPlayer> {
                       FloatingActionButton(
                         onPressed: () {},
                         backgroundColor: Colors.white,
+                        shape: const CircleBorder(
+                            side: BorderSide(
+                                strokeAlign: BorderSide.strokeAlignOutside)),
                         child: CircleAvatar(
+                          backgroundColor: Colors.white,
                           radius: 25,
                           backgroundImage: NetworkImage(
                             widget.snap['profImage'].toString(),
@@ -166,18 +190,17 @@ class _PostPlayerState extends State<PostPlayer> {
                         Column(
                           children: [
                             IconButton(
-                              icon: const Icon(
-                                Icons.comment_outlined,
-                                size: 35,
-                              ),
-                              onPressed: () => Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => CommentsScreen(
-                                    postId: widget.snap['postId'].toString(),
-                                  ),
+                                icon: const Icon(
+                                  Icons.comment_outlined,
+                                  size: 35,
                                 ),
-                              ),
-                            ),
+                                onPressed: () => showModalBottomSheet(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return CommentsScreen(
+                                          postId:
+                                              widget.snap['postId'].toString());
+                                    })),
                           ],
                         ),
                         const SizedBox(
@@ -199,11 +222,21 @@ class _PostPlayerState extends State<PostPlayer> {
                         Column(
                           children: [
                             IconButton(
-                                icon: const Icon(
-                                  Icons.link_sharp,
-                                  size: 35,
-                                ),
-                                onPressed: () {}),
+                              icon: const Icon(
+                                Icons.link_sharp,
+                                size: 35,
+                              ),
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return const LinkModal(
+                                        link:
+                                            'Your Link Here'); // Pass the actual link
+                                  },
+                                );
+                              },
+                            ),
                           ],
                         ),
                       ])
