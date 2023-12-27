@@ -58,6 +58,7 @@ class CommentCard extends StatelessWidget {
             child: const Icon(
               Icons.favorite,
               size: 16,
+              color: Colors.black,
             ),
           )
         ],

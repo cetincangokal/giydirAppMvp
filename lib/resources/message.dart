@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 
 class Message {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-  List<QueryDocumentSnapshot> messages;
+  List<QueryDocumentSnapshot> messages = [];
   QueryDocumentSnapshot? lastMessage;
 
-  Message({required this.messages,required this.lastMessage});
+
   Future<void> sendMessage(
       {required String myEmail,
       required String sendEmail,
@@ -18,9 +18,13 @@ class Message {
     DocumentReference _myCollectionReference =
         firestore.collection('Users/$myEmail/UsersChat/$sendEmail/Chats').doc();
 
-    DocumentReference _notRead =
-        firestore.collection('Users/$sendEmail/UsersChat').doc('$myEmail');
-    DocumentSnapshot doc = await _notRead.get();
+    DocumentReference _sendNotRead =
+        firestore.collection('Users/$sendEmail/UsersChat').doc(myEmail);
+
+    DocumentReference _myNotRead =
+    firestore.collection('Users/$myEmail/UsersChat').doc(sendEmail);
+    DocumentSnapshot sendDoc = await _sendNotRead.get();
+    DocumentSnapshot myDoc = await _myNotRead.get();
 
     Map<String, dynamic> msj = {
       'mesaj': message,
@@ -30,19 +34,31 @@ class Message {
     _batch.set(_sendCollectionReference, msj);
     _batch.set(_myCollectionReference, msj);
 
-    if (doc.exists) {
-      _batch.update(_notRead, {
+    if (sendDoc.exists) {
+      _batch.update(_sendNotRead, {
         'notRead': FieldValue.increment(1),
         'mesaj': msj['mesaj'],
         'date': msj['date']
       });
     } else {
       _batch.set(
-          _notRead, {'notRead': 1, 'mesaj': msj['mesaj'], 'date': msj['date']});
+          _sendNotRead, {'notRead': 1, 'mesaj': msj['mesaj'], 'date': msj['date']});
+    }
+    if (myDoc.exists) {
+      _batch.update(_myNotRead, {
+        'mesaj': msj['mesaj'],
+        'date': msj['date'],
+
+      });
+    } else {
+      _batch.set(
+          _myNotRead, {'mesaj': msj['mesaj'], 'date': msj['date'],'notRead': 0,});
     }
 
     await _batch.commit();
   }
+
+
 
   runStreamMeesage(
       {
@@ -59,7 +75,10 @@ class Message {
 
 
           setter(() {
-            messages.insert(0, event.docs.last);
+            debugPrint('calisti');
+            if(event.docs.isNotEmpty){
+              messages.insert(0, event.docs.last);
+            }
           });
       }
     });
@@ -77,8 +96,10 @@ class Message {
         .get();
 
     setter(() {
-      messages.addAll(messageSnapshot.docs) ;
-      lastMessage = messageSnapshot.docs.last;
+      if(messageSnapshot.docs.isNotEmpty){
+        lastMessage = messageSnapshot.docs.last;
+        messages = messageSnapshot.docs;
+      }
     });
 
   }

@@ -8,6 +8,8 @@ import 'package:giydir_mvp2/responsive/responsive_layout.dart';
 import 'package:giydir_mvp2/responsive/web_screen_layout.dart';
 import 'package:giydir_mvp2/screens/addPost/addPost_screen.dart';
 import 'package:giydir_mvp2/screens/login_screen.dart';
+import 'package:giydir_mvp2/screens/message_home_screen.dart';
+import 'package:giydir_mvp2/screens/message_screen.dart';
 import 'package:giydir_mvp2/screens/signup_screen.dart';
 import 'package:giydir_mvp2/screens/splash_screen.dart';
 import 'package:giydir_mvp2/utils/colors.dart';
@@ -56,7 +58,7 @@ class MyApp extends StatelessWidget {
               // Checking if the snapshot has any data or not
               if (snapshot.hasData) {
                 // if snapshot has data which means user is logged in then we check the width of screen and accordingly display the screen layout
-                return const ResponsiveLayout(
+                return const  ResponsiveLayout(
                   mobileScreenLayout: MobileScreenLayout(),
                   webScreenLayout: WebScreenLayout(),
                 );
@@ -74,7 +76,7 @@ class MyApp extends StatelessWidget {
               );
             }
 
-            return const SplashScreen();
+            return  SplashScreen();
           },
         ),
       ),
