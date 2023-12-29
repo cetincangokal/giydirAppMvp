@@ -3,16 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:giydir_mvp2/models/user.dart';
 import 'package:giydir_mvp2/providers/user_providers.dart';
 import 'package:giydir_mvp2/resources/firestore_methods.dart';
-import 'package:giydir_mvp2/utils/colors.dart';
 import 'package:giydir_mvp2/utils/utils.dart';
 import 'package:giydir_mvp2/widgets/comment_card.dart';
 import 'package:provider/provider.dart';
 
 class CommentsScreen extends StatefulWidget {
+  // ignore: prefer_typing_uninitialized_variables
   final postId;
   const CommentsScreen({Key? key, required this.postId}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _CommentsScreenState createState() => _CommentsScreenState();
 }
 
@@ -37,6 +38,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
         commentEditingController.text = "";
       });
     } catch (err) {
+      // ignore: use_build_context_synchronously
       showSnackBar(
         context,
         err.toString(),
@@ -49,13 +51,16 @@ class _CommentsScreenState extends State<CommentsScreen> {
     final User user = Provider.of<UserProvider>(context).getUser;
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: mobileBackgroundColor,
-        title: const Text(
-          'Comments',
-        ),
-        centerTitle: false,
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: Colors.amber,
+      //   shape: const RoundedRectangleBorder(
+      //       borderRadius: BorderRadius.vertical(top: Radius.circular(20))
+      //     ),
+      //   title: const Text(
+      //     'Comments',
+      //   ),
+      //   centerTitle: false,
+      // ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('posts')
@@ -69,7 +74,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
               child: CircularProgressIndicator(),
             );
           }
-
+      
           return ListView.builder(
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (ctx, index) => CommentCard(
@@ -99,6 +104,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
                     controller: commentEditingController,
                     decoration: InputDecoration(
                       hintText: 'Comment as ${user.username}',
+                      hintStyle: const TextStyle(color: Colors.black),
                       border: InputBorder.none,
                     ),
                   ),

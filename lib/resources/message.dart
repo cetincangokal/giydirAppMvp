@@ -3,46 +3,62 @@ import 'package:flutter/material.dart';
 
 class Message {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-  List<QueryDocumentSnapshot> messages;
+  List<QueryDocumentSnapshot> messages = [];
   QueryDocumentSnapshot? lastMessage;
 
-  Message({required this.messages,required this.lastMessage});
+
   Future<void> sendMessage(
       {required String myEmail,
       required String sendEmail,
       required String message}) async {
-    WriteBatch _batch = firestore.batch();
-    DocumentReference _sendCollectionReference =
+    WriteBatch batch = firestore.batch();
+    DocumentReference sendCollectionReference =
         firestore.collection('Users/$sendEmail/UsersChat/$myEmail/Chats').doc();
 
-    DocumentReference _myCollectionReference =
+    DocumentReference myCollectionReference =
         firestore.collection('Users/$myEmail/UsersChat/$sendEmail/Chats').doc();
 
-    DocumentReference _notRead =
-        firestore.collection('Users/$sendEmail/UsersChat').doc('$myEmail');
-    DocumentSnapshot doc = await _notRead.get();
+    DocumentReference sendNotRead =
+        firestore.collection('Users/$sendEmail/UsersChat').doc(myEmail);
+
+    DocumentReference myNotRead =
+    firestore.collection('Users/$myEmail/UsersChat').doc(sendEmail);
+    DocumentSnapshot sendDoc = await sendNotRead.get();
+    DocumentSnapshot myDoc = await myNotRead.get();
 
     Map<String, dynamic> msj = {
       'mesaj': message,
       'date': FieldValue.serverTimestamp(),
       'kimden': myEmail
     };
-    _batch.set(_sendCollectionReference, msj);
-    _batch.set(_myCollectionReference, msj);
+    batch.set(sendCollectionReference, msj);
+    batch.set(myCollectionReference, msj);
 
-    if (doc.exists) {
-      _batch.update(_notRead, {
+    if (sendDoc.exists) {
+      batch.update(sendNotRead, {
         'notRead': FieldValue.increment(1),
         'mesaj': msj['mesaj'],
         'date': msj['date']
       });
     } else {
-      _batch.set(
-          _notRead, {'notRead': 1, 'mesaj': msj['mesaj'], 'date': msj['date']});
+      batch.set(
+          sendNotRead, {'notRead': 1, 'mesaj': msj['mesaj'], 'date': msj['date']});
+    }
+    if (myDoc.exists) {
+      batch.update(myNotRead, {
+        'mesaj': msj['mesaj'],
+        'date': msj['date'],
+
+      });
+    } else {
+      batch.set(
+          myNotRead, {'mesaj': msj['mesaj'], 'date': msj['date'],'notRead': 0,});
     }
 
-    await _batch.commit();
+    await batch.commit();
   }
+
+
 
   runStreamMeesage(
       {
@@ -59,7 +75,10 @@ class Message {
 
 
           setter(() {
-            messages.insert(0, event.docs.last);
+            debugPrint('calisti');
+            if(event.docs.isNotEmpty){
+              messages.insert(0, event.docs.last);
+            }
           });
       }
     });
@@ -77,8 +96,10 @@ class Message {
         .get();
 
     setter(() {
-      messages.addAll(messageSnapshot.docs) ;
-      lastMessage = messageSnapshot.docs.last;
+      if(messageSnapshot.docs.isNotEmpty){
+        lastMessage = messageSnapshot.docs.last;
+        messages = messageSnapshot.docs;
+      }
     });
 
   }

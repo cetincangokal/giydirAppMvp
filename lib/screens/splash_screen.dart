@@ -11,15 +11,29 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-     Timer(
-      const  Duration(seconds: 3),
-      () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) => const LoginScreen()))
-    );
+
+    // Use a local variable to store the context
+    BuildContext? currentContext = context;
+
+    // Check if the widget is still mounted before creating the Timer
+    if (mounted) {
+      Timer(
+        const Duration(seconds: 3),
+        () {
+          // Check if the widget is still mounted before navigating
+          if (mounted) {
+            Navigator.of(currentContext).pushReplacement(
+              MaterialPageRoute(
+                builder: (BuildContext context) => const LoginScreen(),
+              ),
+            );
+          }
+        },
+      );
+    }
   }
 
   @override
@@ -35,9 +49,9 @@ class _SplashScreenState extends State<SplashScreen> {
               style: TextStyle(
                 fontSize: 48,
                 color: Colors.black,
-                fontWeight: FontWeight.w500
+                fontWeight: FontWeight.w500,
               ),
-              ),
+            ),
           ],
         ),
       ),

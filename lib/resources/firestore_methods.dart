@@ -9,7 +9,8 @@ class FireStoreMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<String> uploadPost(String description, Uint8List file, String uid,
-      String username, String profImage) async {
+      String username, String profImage,
+      {Map<String, dynamic>? links}) async {
     // asking uid here because we dont want to make extra calls to firebase auth when we can just get from our state management
     String res = "Some error occurred";
     try {
@@ -24,7 +25,10 @@ class FireStoreMethods {
           .get()
           .then((DocumentSnapshot<Map<String, dynamic>> value) {
         if (value.data()!['postCount'] == null) {
-          _firestore.collection('users').doc(uid).set({'postCount': 1},SetOptions(merge: true));
+          _firestore
+              .collection('users')
+              .doc(uid)
+              .set({'postCount': 1}, SetOptions(merge: true));
         } else {
           _firestore
               .collection('users')
@@ -34,17 +38,66 @@ class FireStoreMethods {
       });
 
       Post post = Post(
-        description: description,
-        uid: uid,
-        username: username,
-        likes: [],
-        postId: postId,
-        datePublished: DateTime.now(),
-        postUrl: photoUrl,
-        profImage: profImage,
-      );
+          description: description,
+          uid: uid,
+          username: username,
+          likes: [],
+          postId: postId,
+          datePublished: DateTime.now(),
+          postUrl: photoUrl,
+          profImage: profImage,
+          links: links
+          // Kategori ve link bilgilerini ekleyin
+          );
+
       _firestore.collection('posts').doc(postId).set(post.toJson());
       res = "success";
+    } catch (err) {
+      res = err.toString();
+    }
+    return res;
+  }
+
+  Future<Map<String, dynamic>?> getPostLinks(String postId) async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _firestore.collection('posts').doc(postId).get();
+
+      if (snapshot.exists) {
+        // Belge var mı kontrolü
+        Map<String, dynamic>? links = snapshot.data()?['links'];
+        return links;
+      } else {
+        // ignore: avoid_print
+        print('Belge bulunamadı');
+        return null;
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print('Hata: $e');
+      return null;
+    }
+  }
+
+
+  Future<String> deleteUserData(String uid) async {
+    String res = "Some error occurred";
+    try {
+      // Step 1: Delete user posts from Firestore
+      QuerySnapshot<Map<String, dynamic>> userPostsSnapshot = await _firestore
+          .collection('posts')
+          .where('uid', isEqualTo: uid)
+          .get();
+
+      for (QueryDocumentSnapshot<Map<String, dynamic>> postSnapshot
+          in userPostsSnapshot.docs) {
+        await deletePost(postSnapshot.id, uid);
+      }
+
+      // Step 2: Delete user data from Firestore
+      await _firestore.collection('users').doc(uid).delete();
+
+      res = 'success';
     } catch (err) {
       res = err.toString();
     }
@@ -104,10 +157,26 @@ class FireStoreMethods {
   }
 
   // Delete Post
-  Future<String> deletePost(String postId) async {
+  Future<String> deletePost(String postId, String uid) async {
     String res = "Some error occurred";
     try {
+      // Gönderiyi sil
       await _firestore.collection('posts').doc(postId).delete();
+
+      // Kullanıcının postCount'unu güncelle, negatif olmamasına dikkat et
+      DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+          await _firestore.collection('users').doc(uid).get();
+
+      if (userSnapshot.exists) {
+        int postCount = userSnapshot.data()?['postCount'] ?? 0;
+
+        if (postCount > 0) {
+          await _firestore.collection('users').doc(uid).update({
+            'postCount': FieldValue.increment(-1),
+          });
+        }
+      }
+
       res = 'success';
     } catch (err) {
       res = err.toString();
@@ -140,6 +209,29 @@ class FireStoreMethods {
       }
     } catch (e) {
       if (kDebugMode) print(e.toString());
+    }
+  }
+  Future<void> unfollowUser(String followerId, String followingId) async {
+    try {
+      // Takipçi ID'sini takip edilen listesinden sil
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(followingId)
+          .collection('followers')
+          .doc(followerId)
+          .delete();
+
+      // Takip edilen ID'sini takipçi listesinden sil
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(followerId)
+          .collection('following')
+          .doc(followingId)
+          .delete();
+    } catch (e) {
+      // ignore: avoid_print
+      print('Kullanıcı takibini bırakma hatası: $e');
+      rethrow;
     }
   }
 }

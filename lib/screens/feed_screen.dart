@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:giydir_mvp2/screens/comments_screen.dart';
 import 'package:giydir_mvp2/screens/search_screen.dart';
-import 'package:giydir_mvp2/widgets/post_card.dart';
 import 'package:giydir_mvp2/widgets/post_player.dart';
 
 class FeedScreen extends StatefulWidget {
@@ -15,7 +13,6 @@ class FeedScreen extends StatefulWidget {
 class _FeedScreenState extends State<FeedScreen> {
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -38,7 +35,7 @@ class _FeedScreenState extends State<FeedScreen> {
           ],
         ),
         elevation: 0,
-        backgroundColor: const Color(0x00ffffff),
+        backgroundColor: Colors.transparent,
       ),
       body: StreamBuilder(
           stream: FirebaseFirestore.instance.collection('posts').snapshots(),
