@@ -1,6 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:giydir_mvp2/utils/colors.dart';
+import 'package:giydir_mvp2/screens/notifications_page.dart';
 import 'package:giydir_mvp2/utils/global_variable.dart';
 
 class MobileScreenLayout extends StatefulWidget {
@@ -34,7 +33,19 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
 
   void navigationTapped(int page) {
     //Animating Page
-    pageController.jumpToPage(page);
+    // pageController.jumpToPage(page);
+    setState(() {
+      _page = page;
+      if (_page == 1) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const NotificationsPage()),
+        );
+      } else {
+        // Animating Page
+        pageController.jumpToPage(_page);
+      }
+    });
   }
 
   @override

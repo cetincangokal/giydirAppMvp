@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -13,6 +15,7 @@ class AddPostScreen extends StatefulWidget {
   const AddPostScreen({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _AddPostScreenState createState() => _AddPostScreenState();
 }
 
@@ -22,6 +25,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
   String? _selectedCategory;
   bool isLoading = false;
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _topLinkController = TextEditingController();
+
   Map<String, List<String>> additionalClothesInfo = {};
 
   _selectImage(BuildContext parentContext) async {
@@ -46,7 +51,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 child: const Text('Choose from Gallery'),
                 onPressed: () async {
                   Navigator.of(context).pop();
-                  Uint8List? file = await pickImage(ImageSource.gallery);
+                  Uint8List file = await pickImage(ImageSource.gallery);
                   setState(() {
                     _file = file;
                   });
@@ -94,6 +99,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
       setState(() {
         isLoading = false;
       });
+      // ignore: use_build_context_synchronously
       showSnackBar(
         context,
         err.toString(),
@@ -118,8 +124,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
       backgroundColor: const Color.fromARGB(255, 243, 242, 242),
       context: context,
       builder: (BuildContext context) {
-        TextEditingController topLinkController = TextEditingController();
-
         return SingleChildScrollView(
           child: SizedBox(
             height: 600,
@@ -138,13 +142,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),
-                  TextFormField(
-                    controller: topLinkController,
-                    decoration: const InputDecoration(
-                      labelText: 'Link',
-                      // Diğer dekorasyon özelliklerini ekleyebilirsiniz.
-                    ),
-                    keyboardType: TextInputType.text,
+                  TextFieldInput(
+                    textEditingController: _topLinkController,
+                    labelText: 'Link',
+                    textInputType: TextInputType.text,
                     onChanged: (value) {
                       setState(() {
                         _updateLink(value);
@@ -197,6 +198,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     child: ElevatedButton(
                       onPressed: () {
                         // Use _link when pressing the ElevatedButton
+                        // ignore: avoid_print
                         print("Link: $_link, $_selectedCategory");
 
                         // Eğer kategori daha önce eklenmemişse, listeye ekle
@@ -207,7 +209,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
                         // Link'i ilgili kategoriye ekle
                         additionalClothesInfo[_selectedCategory!]!
-                            .add(topLinkController.text);
+                            .add(_topLinkController.text);
 
                         // Modalı kapat
                         Navigator.pop(context);
@@ -291,30 +293,21 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       SizedBox(
-                          height: 94.0,
-                          width: 71.0,
-                          child: AspectRatio(
-                            aspectRatio: 90 / 80,
-                            child: GestureDetector(
-                              onTap: () {
-                                if (_file == null) {
-                                  Navigator.pop(
-                                      context); // Navigate back to the previous screen
-                                }
-                              },
-                              child: Container(
-                                decoration: _file != null
-                                    ? BoxDecoration(
-                                        image: DecorationImage(
-                                          fit: BoxFit.fill,
-                                          alignment: FractionalOffset.topCenter,
-                                          image: MemoryImage(_file!),
-                                        ),
-                                      )
-                                    : null // Empty container if _file is null
+                        height: 94.0,
+                        width: 71.0,
+                        child: AspectRatio(
+                          aspectRatio: 90 / 80,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                fit: BoxFit.fill,
+                                alignment: FractionalOffset.topCenter,
+                                image: MemoryImage(_file!),
                               ),
                             ),
-                          )),
+                          ),
+                        ),
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(left: 20),
                         child: SizedBox(

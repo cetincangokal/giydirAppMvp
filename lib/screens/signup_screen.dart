@@ -5,7 +5,6 @@ import 'package:giydir_mvp2/responsive/mobile_screen_layout.dart';
 import 'package:giydir_mvp2/responsive/responsive_layout.dart';
 import 'package:giydir_mvp2/responsive/web_screen_layout.dart';
 import 'package:giydir_mvp2/screens/login_screen.dart';
-import 'package:giydir_mvp2/utils/colors.dart';
 import 'package:giydir_mvp2/utils/utils.dart';
 import 'package:giydir_mvp2/widgets/text_input.dart';
 import 'package:image_picker/image_picker.dart';
@@ -37,46 +36,54 @@ class _SignupScreenState extends State<SignupScreen> {
     _nickNameController.dispose();
   }
 
-  void signUpUser() async {
-    // set loading to true
-    setState(() {
-      _isLoading = true;
-    });
+void signUpUser() async {
+  // Check if passwords match
+  if (_passwordController.text != _passwordAgainController.text) {
+    showSnackBar(context, "Passwords do not match");
+    return;
+  }
 
-    // signup user using our authmethodds
-    String res = await AuthMethods().signUpUser(
-        email: _emailController.text,
-        password: _passwordController.text,
-        username: _nickNameController.text,
-        nameAndSurname: _nameAndSurnameController.text,
-        file: _image!,
-        context: context);
-    // if string returned is sucess, user has been created
-    if (res == "success") {
-      setState(() {
-        _isLoading = false;
-      });
-      // navigate to the home screen
-      if (context.mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const ResponsiveLayout(
-              mobileScreenLayout: MobileScreenLayout(),
-              webScreenLayout: WebScreenLayout(),
-            ),
+  // set loading to true
+  setState(() {
+    _isLoading = true;
+  });
+
+  // signup user using our authmethods
+  String res = await AuthMethods().signUpUser(
+      email: _emailController.text,
+      password: _passwordController.text,
+      username: _nickNameController.text,
+      nameAndSurname: _nameAndSurnameController.text,
+      file: _image!,
+      context: context);
+
+  // if string returned is success, user has been created
+  if (res == "success") {
+    setState(() {
+      _isLoading = false;
+    });
+    // navigate to the home screen
+    if (context.mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const ResponsiveLayout(
+            mobileScreenLayout: MobileScreenLayout(),
+            webScreenLayout: WebScreenLayout(),
           ),
-        );
-      }
-    } else {
-      setState(() {
-        _isLoading = false;
-      });
-      // show the error
-      if (context.mounted) {
-        showSnackBar(context, res);
-      }
+        ),
+      );
+    }
+  } else {
+    setState(() {
+      _isLoading = false;
+    });
+    // show the error
+    if (context.mounted) {
+      showSnackBar(context, res);
     }
   }
+}
+
 
   selectImage() async {
     Uint8List im = await pickImage(ImageSource.gallery);
@@ -278,6 +285,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     margin: const EdgeInsets.only(top: 10),
                     child: InkWell(
                       onTap: () {
+                        // ignore: avoid_print
                         print('need help');
                       },
                       child: const Text(

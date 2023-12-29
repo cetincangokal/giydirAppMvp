@@ -6,7 +6,6 @@ import 'package:giydir_mvp2/models/user.dart' as model;
 import 'package:giydir_mvp2/resources/storage_methods.dart';
 import 'package:giydir_mvp2/utils/utils.dart';
 
-
 class AuthMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -21,7 +20,7 @@ class AuthMethods {
     return model.User.fromSnap(documentSnapshot);
   }
 
-  // Signing Up 
+  // Signing Up
 
   Future<String> signUpUser({
     required String email,
@@ -33,20 +32,19 @@ class AuthMethods {
   }) async {
     String res = "Some error Occurred";
     try {
-      if (email.isNotEmpty ||
-          password.isNotEmpty ||
-          username.isNotEmpty ||
-          nameAndSurname.isNotEmpty ||
-          file != null) {
-        // registering user in auth with email and password
+      if (email.isNotEmpty &&
+          password.isNotEmpty &&
+          username.isNotEmpty &&
+          nameAndSurname.isNotEmpty) {
         UserCredential cred = await _auth.createUserWithEmailAndPassword(
           email: email,
           password: password,
         );
+        // ignore: use_build_context_synchronously
         await sendEmailVerification(context);
 
-        String photoUrl =
-            await StorageMethods().uploadImageToStorage('profilePics', file, false);
+        String photoUrl = await StorageMethods()
+            .uploadImageToStorage('profilePics', file, false);
 
         model.User user = model.User(
           username: username,
@@ -58,7 +56,6 @@ class AuthMethods {
           following: [],
         );
 
-        // adding user in our database
         await _firestore
             .collection("users")
             .doc(cred.user!.uid)
@@ -69,7 +66,7 @@ class AuthMethods {
         res = "Please enter all the fields";
       }
     } catch (err) {
-      return err.toString();
+      res = err.toString();
     }
     return res;
   }
@@ -81,30 +78,83 @@ class AuthMethods {
   }) async {
     String res = "Some error Occurred";
     try {
-      if (email.isNotEmpty || password.isNotEmpty) {
-        // logging in user with email and password
+      if (email.isNotEmpty && password.isNotEmpty) {
         await _auth.signInWithEmailAndPassword(
           email: email,
           password: password,
         );
         res = "success";
       } else {
-        res = "Please enter all the fields";
+        res = "Please enter both email and password";
       }
     } catch (err) {
-      return err.toString();
+      res = err.toString();
     }
     return res;
   }
 
   Future<void> signOut() async {
-    await _auth.signOut();
+    await FirebaseAuth.instance.signOut();
   }
-  
+
   Future<void> sendEmailVerification(BuildContext context) async {
     try {
       _auth.currentUser!.sendEmailVerification();
       showSnackBar(context, 'Email verification send!');
-    }catch (e){}
+    // ignore: empty_catches
+    } catch (e) {}
+  }
+
+// Şifre Değiştirme
+  Future<String> changePassword(String newPassword, BuildContext context) async {
+    String res = "Some error occurred";
+    try {
+      await _auth.currentUser!.updatePassword(newPassword);
+
+      res = "success";
+    } catch (err) {
+      // ignore: use_build_context_synchronously
+      showSnackBar(context, 'Please log in again');
+    }
+    return res;
+  }
+
+  Future<void> deleteUserData(String uid) async {
+    try {
+      // Step 4: Delete the user account
+      await FirebaseAuth.instance.currentUser!.delete();
+      // ignore: avoid_print
+      print("Step 4 Result: Success");
+    } catch (e) {
+      // ignore: avoid_print
+      print("Error deleting user account: $e");
+    }
+  }
+
+ // Şifre Sıfırlama Bağlantısı Gönderme
+  Future<String> sendPasswordResetEmail(
+      String email, BuildContext context) async {
+    String res = "Some error occurred";
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      res = "success";
+    } catch (err) {
+      res = err.toString();
+    }
+    return res;
+  }
+
+  // Şifre Sıfırlama
+  Future<String> resetPassword(String email, BuildContext context) async {
+    String res = "Some error occurred";
+    try {
+      await sendPasswordResetEmail(email, context);
+      // ignore: use_build_context_synchronously
+      showSnackBar(context, 'Password reset email sent to $email');
+      res = "success";
+    } catch (err) {
+      res = err.toString();
+    }
+    return res;
   }
 }

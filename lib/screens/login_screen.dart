@@ -4,7 +4,6 @@ import 'package:giydir_mvp2/responsive/mobile_screen_layout.dart';
 import 'package:giydir_mvp2/responsive/responsive_layout.dart';
 import 'package:giydir_mvp2/responsive/web_screen_layout.dart';
 import 'package:giydir_mvp2/screens/signup_screen.dart';
-import 'package:giydir_mvp2/utils/colors.dart';
 import 'package:giydir_mvp2/utils/global_variable.dart';
 import 'package:giydir_mvp2/utils/utils.dart';
 import 'package:giydir_mvp2/widgets/text_input.dart';
@@ -32,18 +31,32 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _isLoading = true;
     });
-    String res = await AuthMethods().loginUser(
-        email: _emailController.text, password: _passwordController.text);
+
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      showSnackBar(context, 'Please enter both email and password.');
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    String res =
+        await AuthMethods().loginUser(email: email, password: password);
+
     if (res == 'success') {
       if (context.mounted) {
         Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (context) => const ResponsiveLayout(
-                mobileScreenLayout: MobileScreenLayout(),
-                webScreenLayout: WebScreenLayout(),
-              ),
+          MaterialPageRoute(
+            builder: (context) => const ResponsiveLayout(
+              mobileScreenLayout: MobileScreenLayout(),
+              webScreenLayout: WebScreenLayout(),
             ),
-            (route) => false);
+          ),
+          (route) => false,
+        );
 
         setState(() {
           _isLoading = false;
@@ -53,9 +66,30 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _isLoading = false;
       });
-      if (context.mounted) {
-        showSnackBar(context, res);
+
+      if (res.contains('supplied auth credential')) {
+        // ignore: use_build_context_synchronously
+        showSnackBar(context,
+            'Wrong email or password. Please check your email and password.');
       }
+    }
+  }
+
+  void forgotPassword() async {
+    String email = _emailController.text.trim();
+
+    if (email.isEmpty) {
+      showSnackBar(context, 'Please enter your email.');
+      return;
+    }
+
+    try {
+      await AuthMethods().resetPassword(email, context);
+      // ignore: use_build_context_synchronously
+      showSnackBar(context, 'Password reset email sent to $email');
+    } catch (e) {
+      // ignore: use_build_context_synchronously
+      showSnackBar(context, 'Error sending password reset email: $e');
     }
   }
 
@@ -164,8 +198,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 15,),
-              const Text('Forgot Password', style: TextStyle(color: Colors.black),),
+              const SizedBox(
+                height: 15,
+              ),
+              InkWell(
+                  onTap: forgotPassword,
+                  child: const Text(
+                    'Forgot Password',
+                    style: TextStyle(color: Colors.black),
+                  )),
               const SizedBox(
                 height: 60,
               )

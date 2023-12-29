@@ -4,14 +4,16 @@ import 'package:giydir_mvp2/models/user.dart' as model;
 import 'package:giydir_mvp2/providers/user_providers.dart';
 import 'package:giydir_mvp2/resources/firestore_methods.dart';
 import 'package:giydir_mvp2/screens/comments_screen.dart';
-import 'package:giydir_mvp2/screens/profile_screen.dart';
+import 'package:giydir_mvp2/screens/message_home_screen.dart';
 import 'package:giydir_mvp2/utils/utils.dart';
 import 'package:giydir_mvp2/widgets/link_modal.dart';
 import 'package:provider/provider.dart';
 
+// ignore: must_be_immutable
 class PostPlayer extends StatefulWidget {
-  final snap;
-  const PostPlayer({super.key, this.snap});
+  Map<String,dynamic> snap;
+  bool? isSearch;
+  PostPlayer({super.key, required this.snap,this.isSearch});
 
   @override
   State<PostPlayer> createState() => _PostPlayerState();
@@ -26,22 +28,21 @@ class _PostPlayerState extends State<PostPlayer> {
     fetchCommentLen();
   }
 
-  // fetchCommentLen() async {
-  //   try {
-  //     QuerySnapshot snap = await FirebaseFirestore.instance
-  //         .collection('posts')
-  //         .doc(widget.snap['postId'])
-  //         .collection('comments')
-  //         .get();
-  //     commentLen = snap.docs.length;
-  //   } catch (err) {
-  //     showSnackBar(
-  //       context,
-  //       err.toString(),
-  //     );
-  //   }
-  //   setState(() {});
-  // }
+
+  deletePost(String postId) async {
+    try {
+      String uid = widget.snap['uid'].toString(); // Kullanıcının UID'sini al
+      await FireStoreMethods()
+          .deletePost(postId, uid); // Gönderiyi sil ve postCount'u güncelle
+    } catch (err) {
+      // ignore: use_build_context_synchronously
+      showSnackBar(
+        context,
+        err.toString(),
+      );
+    }
+  }
+
   fetchCommentLen() async {
     if (mounted) {
       try {
@@ -65,6 +66,13 @@ class _PostPlayerState extends State<PostPlayer> {
   @override
   Widget build(BuildContext context) {
     final model.User user = Provider.of<UserProvider>(context).getUser;
+        if(widget.isSearch != null && widget.isSearch == true){
+      firestore.collection('posts').doc(widget.snap['postId'].toString()).snapshots().listen((event) {
+        setState(() {
+          widget.snap = event.data()!;
+        });
+      });
+    }
     final size = MediaQuery.of(context).size;
 
     return Stack(
@@ -150,30 +158,31 @@ class _PostPlayerState extends State<PostPlayer> {
                           ),
                         ),
                       ),
-                      Column(children: [
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Column(
-                          children: [
-                            IconButton(
-                              icon: widget.snap['likes'].contains(user.uid)
-                                  ? const Icon(
-                                      Icons.star,
-                                      color: Colors.red,
-                                      size: 35,
-                                    )
-                                  : const Icon(
-                                      Icons.star_border,
-                                      size: 35,
-                                    ),
-                              onPressed: () => FireStoreMethods().likePost(
-                                widget.snap['postId'].toString(),
-                                user.uid,
-                                widget.snap['likes'],
+                      Column(
+                        children: [
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Column(
+                            children: [
+                              IconButton(
+                                icon: widget.snap['likes'].contains(user.uid)
+                                    ? const Icon(
+                                        Icons.star,
+                                        color: Colors.red,
+                                        size: 35,
+                                      )
+                                    : const Icon(
+                                        Icons.star_border,
+                                        size: 35,
+                                      ),
+                                onPressed: () => FireStoreMethods().likePost(
+                                  widget.snap['postId'].toString(),
+                                  user.uid,
+                                  widget.snap['likes'],
+                                ),
                               ),
-                            ),
-                            DefaultTextStyle(
+                              DefaultTextStyle(
                                 style: Theme.of(context)
                                     .textTheme
                                     .labelSmall!
@@ -181,65 +190,115 @@ class _PostPlayerState extends State<PostPlayer> {
                                 child: Text(
                                   '${widget.snap['likes'].length} stars',
                                   style: Theme.of(context).textTheme.bodyMedium,
-                                )),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Column(
-                          children: [
-                            IconButton(
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Column(
+                            children: [
+                              IconButton(
                                 icon: const Icon(
                                   Icons.comment_outlined,
                                   size: 35,
                                 ),
                                 onPressed: () => showModalBottomSheet(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return CommentsScreen(
-                                          postId:
-                                              widget.snap['postId'].toString());
-                                    })),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Column(
-                          children: [
-                            IconButton(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return CommentsScreen(
+                                      postId: widget.snap['postId'].toString(),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Column(
+                            children: [
+                              IconButton(
                                 icon: const Icon(
                                   Icons.share,
                                   size: 35,
                                 ),
-                                onPressed: () {}),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Column(
-                          children: [
-                            IconButton(
-                              icon: const Icon(
-                                Icons.link_sharp,
-                                size: 35,
+                                onPressed: () {},
                               ),
-                              onPressed: () {
-                                showModalBottomSheet(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return const LinkModal(
-                                        link:
-                                            'Your Link Here'); // Pass the actual link
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Column(
+                            children: [
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.link_sharp,
+                                  size: 35,
+                                ),
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return LinkModal(
+                                        postId:
+                                            widget.snap['postId'].toString(),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Column(
+                            children: [
+                              if (widget.snap['uid'].toString() == user.uid)
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.more_vert,
+                                    size: 35,
+                                  ),
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: const Text("Delete Post"),
+                                          content: const Text(
+                                              "Are you sure you want to delete this post?"),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context)
+                                                    .pop(); // Close the dialog
+                                              },
+                                              child: const Text("Cancel"),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                deletePost(widget.snap['postId']
+                                                    .toString());
+                                                Navigator.of(context)
+                                                    .pop(); // Close the dialog
+                                              },
+                                              child: const Text("Delete"),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
                                   },
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ])
+                                ),
+                            ],
+                          ),
+                        ],
+                      )
                     ],
                   ),
                 ),
