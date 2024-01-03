@@ -408,14 +408,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       IconButton(
                         onPressed: () {
-                          _addClothesInfo();
+                          // Check if the current user's UID matches the profile UID
+                          if (FirebaseAuth.instance.currentUser!.uid ==
+                              widget.uid) {
+                            _addClothesInfo();
+                          }
                         },
-                        icon: const Icon(
-                          Icons.settings,
-                          size: 40,
-                          color: Colors.black,
-                        ),
-                      )
+                        icon: FirebaseAuth.instance.currentUser!.uid ==
+                                widget.uid
+                            ? const Icon(
+                                Icons.settings,
+                                size: 40,
+                                color: Colors.black,
+                              )
+                            : Container(), // Hide the icon if it's not the user's own profile
+                      ),
                     ],
                   ),
                 ),
