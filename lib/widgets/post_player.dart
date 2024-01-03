@@ -5,15 +5,16 @@ import 'package:giydir_mvp2/providers/user_providers.dart';
 import 'package:giydir_mvp2/resources/firestore_methods.dart';
 import 'package:giydir_mvp2/screens/comments_screen.dart';
 import 'package:giydir_mvp2/screens/message_home_screen.dart';
+import 'package:giydir_mvp2/screens/profile_screen.dart';
 import 'package:giydir_mvp2/utils/utils.dart';
 import 'package:giydir_mvp2/widgets/link_modal.dart';
 import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
 class PostPlayer extends StatefulWidget {
-  Map<String,dynamic> snap;
+  Map<String, dynamic> snap;
   bool? isSearch;
-  PostPlayer({super.key, required this.snap,this.isSearch});
+  PostPlayer({super.key, required this.snap, this.isSearch});
 
   @override
   State<PostPlayer> createState() => _PostPlayerState();
@@ -27,7 +28,6 @@ class _PostPlayerState extends State<PostPlayer> {
     super.initState();
     fetchCommentLen();
   }
-
 
   deletePost(String postId) async {
     try {
@@ -66,8 +66,12 @@ class _PostPlayerState extends State<PostPlayer> {
   @override
   Widget build(BuildContext context) {
     final model.User user = Provider.of<UserProvider>(context).getUser;
-        if(widget.isSearch != null && widget.isSearch == true){
-      firestore.collection('posts').doc(widget.snap['postId'].toString()).snapshots().listen((event) {
+    if (widget.isSearch != null && widget.isSearch == true) {
+      firestore
+          .collection('posts')
+          .doc(widget.snap['postId'].toString())
+          .snapshots()
+          .listen((event) {
         setState(() {
           widget.snap = event.data()!;
         });
@@ -145,7 +149,15 @@ class _PostPlayerState extends State<PostPlayer> {
                   child: Column(
                     children: <Widget>[
                       FloatingActionButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => ProfileScreen(
+                                uid: (widget.snap as dynamic)['uid'],
+                              ),
+                            ),
+                          );
+                        },
                         backgroundColor: Colors.white,
                         shape: const CircleBorder(
                             side: BorderSide(
